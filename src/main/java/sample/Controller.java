@@ -1,13 +1,22 @@
 package sample;
 
 import javafx.fxml.FXML;
+import javafx.scene.Scene;
+import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ToolBar;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+
+import java.awt.*;
+import java.io.File;
 
 public class Controller {
     @FXML
@@ -20,14 +29,21 @@ public class Controller {
     public ToolBar toolbar;
     @FXML
     public Button loadButton;
+    @FXML
+    public ImageView mainImage;
+    @FXML
+    public Canvas workspaceCanvas;
 
-    public void handleImageWrapperScrol(ScrollEvent scrollEvent) {
+    public void handleImageWrapperScroll(ScrollEvent scrollEvent) {
     }
 
-    public void handleWorkspaceWrapperScrol(ScrollEvent scrollEvent) {
+    public void handleWorkspaceWrapperScroll(ScrollEvent scrollEvent) {
     }
 
     public void load(MouseEvent event) {
-
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Choose an image");
+        File file = fileChooser.showOpenDialog(new Stage());
+        mainImage.setImage(new Image(file.toURI().toString()));
     }
 }
