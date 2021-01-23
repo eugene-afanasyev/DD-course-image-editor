@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+<BorderPane fx:controller="sample.DraggableNodeController"
+            xmlns:fx="http://javafx.com/fxml" fx:id="nodeInner" minWidth="160" minHeight="80" prefHeight="80"
+            onMouseDragged="#onNodeMouseDragged">
+</BorderPane>

@@ -9,3 +9,11 @@
     -fx-border-width: 2;
     -fx-border-color: aliceblue;
 }
+
+#nodeInner {
+    -fx-border-color: #1f1f1f;
+    -fx-border-width: 4;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-background-color: #4e4e4e;
+}
