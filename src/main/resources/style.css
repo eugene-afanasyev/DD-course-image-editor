@@ -1,0 +1,11 @@
+#imageWrapper {
+    -fx-background-color: #bac9cd;
+    -fx-border-width: 2;
+    -fx-border-color: aliceblue;
+}
+
+#workspaceWrapper {
+    -fx-background-color: #afafaf;
+    -fx-border-width: 2;
+    -fx-border-color: aliceblue;
+}
