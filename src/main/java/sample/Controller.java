@@ -4,6 +4,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ToolBar;
 import javafx.scene.image.Image;
@@ -44,8 +45,12 @@ public class Controller {
     }
 
     public void initialize() throws IOException {
-        Parent parent = FXMLLoader.load(getClass().getResource("/DraggableNode.fxml"));
-        workspaceBox.getChildren().add(parent);
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/DraggableNode.fxml"));
+        workspaceBox.getChildren().add(loader.load());
+        DraggableNodeController resultNode = loader.getController();
+        Label label = new Label("result node");
+        label.setStyle("-fx-font-size: 20; -fx-text-fill: white");
+        resultNode.getCenterPane().getChildren().add(label);
     }
 
     public void handleWorkspaceWrapperScroll(ScrollEvent scrollEvent) {

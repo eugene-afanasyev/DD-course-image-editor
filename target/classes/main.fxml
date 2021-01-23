@@ -20,8 +20,8 @@
         <ImageView fx:id="mainImage" onScroll="#handleImageScroll"/>
     </ScrollPane>
     <ScrollPane fx:id="workspaceWrapper" maxHeight="400" minHeight="200" minWidth="1280" onScroll="#handleWorkspaceWrapperScroll">
-        <StackPane fx:id="workspaceBox">
+        <VBox fx:id="workspaceBox">
 
-        </StackPane>
+        </VBox>
     </ScrollPane>
 </VBox>

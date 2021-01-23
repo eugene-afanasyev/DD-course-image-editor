@@ -9,6 +9,21 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.image.Image?>
 <BorderPane fx:controller="sample.DraggableNodeController"
-            xmlns:fx="http://javafx.com/fxml" fx:id="nodeInner" minWidth="160" minHeight="80" prefHeight="80"
-            onMouseDragged="#onNodeMouseDragged">
+            xmlns:fx="http://javafx.com/fxml" fx:id="nodeInner" minWidth="160" minHeight="80" prefHeight="80">
+    <left>
+        <VBox minWidth="30">
+            <VBox fx:id="inputPane" style="-fx-background-color: #2064a0" VBox.vgrow="ALWAYS"/>
+        </VBox>
+    </left>
+    <center>
+        <VBox minWidth="100" alignment="CENTER">
+            <VBox fx:id="centerPane" VBox.vgrow="ALWAYS"
+                  style="-fx-background-color: #4e4e4e;" onMouseDragged="#onNodeMouseDragged"/>
+        </VBox>
+    </center>
+    <right>
+        <VBox minWidth="30">
+            <VBox fx:id="outputPane" VBox.vgrow="ALWAYS" style="-fx-background-color: #276f35"/>
+        </VBox>
+    </right>
 </BorderPane>
