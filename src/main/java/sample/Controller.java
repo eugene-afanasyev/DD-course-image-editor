@@ -10,6 +10,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
+import javafx.scene.input.ZoomEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
@@ -34,7 +35,8 @@ public class Controller {
     @FXML
     public Canvas workspaceCanvas;
 
-    public void handleImageWrapperScroll(ScrollEvent scrollEvent) {
+    public void handleImageScroll(ScrollEvent scrollEvent) {
+        mainImage.setFitHeight(mainImage.getFitHeight() + scrollEvent.getDeltaY() / 2.0);
     }
 
     public void handleWorkspaceWrapperScroll(ScrollEvent scrollEvent) {
@@ -45,5 +47,11 @@ public class Controller {
         fileChooser.setTitle("Choose an image");
         File file = fileChooser.showOpenDialog(new Stage());
         mainImage.setImage(new Image(file.toURI().toString()));
+        mainImage.setPreserveRatio(true);
+        mainImage.setFitHeight(mainImage.getImage().getHeight());
+        mainImage.setFitWidth(mainImage.getImage().getWidth());
+    }
+
+    public void zoom(ZoomEvent zoomEvent) {
     }
 }
