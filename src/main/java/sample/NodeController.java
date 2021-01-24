@@ -1,6 +1,8 @@
 package sample;
 
 import com.sun.javafx.logging.Logger;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Bounds;
@@ -25,21 +27,21 @@ public class NodeController {
     @FXML
     private BorderPane nodeInner;
 
-    private ArrayList<Connection> inputConnections;
-    private ArrayList<Connection> outputConnections;
+    private ObservableList<Connection> inputConnections;
+    private ObservableList<Connection> outputConnections;
 
     private static NodeController DraggingNode;
 
     public void initialize() {
-        inputConnections = new ArrayList<>();
-        outputConnections = new ArrayList<>();
+        inputConnections = FXCollections.observableList(new ArrayList<>());
+        outputConnections = FXCollections.observableList(new ArrayList<>());
     }
 
-    public ArrayList<Connection> getInputConnections() {
+    public ObservableList<Connection> getInputConnections() {
         return inputConnections;
     }
 
-    public ArrayList<Connection> getOutputConnections() {
+    public ObservableList<Connection> getOutputConnections() {
         return outputConnections;
     }
 

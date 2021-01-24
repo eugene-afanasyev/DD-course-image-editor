@@ -42,7 +42,7 @@ public class Controller {
     @FXML
     public Pane workspaceBox;
 
-    private Map<NodeController, ArrayList<NodeController>> nodes;
+    private static NodeController resultNode;
 
     public void handleImageScroll(ScrollEvent scrollEvent) {
         mainImage.setFitHeight(mainImage.getFitHeight() + scrollEvent.getDeltaY() / 2.0);
@@ -51,7 +51,7 @@ public class Controller {
     public void initialize() throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/DraggableNode.fxml"));
         workspaceBox.getChildren().add(loader.load());
-        NodeController resultNode = loader.getController();
+        resultNode = loader.getController();
         Label label = new Label("result node");
         label.setWrapText(true);
         label.setStyle("-fx-font-size: 20; -fx-text-fill: white");
@@ -59,13 +59,6 @@ public class Controller {
         resultNode.getCenterPane().setOnMouseDragged(null);
         resultNode.getOutputPane().setMaxWidth(0);
 
-        nodes = new HashMap<>();
-        nodes.put(resultNode, new ArrayList<>());
-
-        FXMLLoader loader1 = new FXMLLoader(getClass().getResource("/DraggableNode.fxml"));
-        workspaceBox.getChildren().add(loader1.load());
-        NodeController node = loader1.getController();
-        node.getCenterPane().getChildren().add(new Label("AAAAAAAAAAAAA"));
     }
 
     public void handleWorkspaceWrapperScroll(ScrollEvent scrollEvent) {}
@@ -78,8 +71,5 @@ public class Controller {
         mainImage.setPreserveRatio(true);
         mainImage.setFitHeight(mainImage.getImage().getHeight());
         mainImage.setFitWidth(mainImage.getImage().getWidth());
-    }
-
-    public void zoom(ZoomEvent zoomEvent) {
     }
 }
