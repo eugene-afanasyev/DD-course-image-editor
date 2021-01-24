@@ -98,11 +98,15 @@ public class NodeController {
     }
 
     public void onOutputPaneDragDetected(MouseEvent event) {
+        DraggingNode = this;
+
         outputPane.startFullDrag();
         event.consume();
     }
 
     public void onInputNodeDragReleased(MouseDragEvent mouseDragEvent) {
-        System.out.println(mouseDragEvent.getSource());
+        Connection connection = new Connection(this, NodeController.DraggingNode);
+        inputConnections.add(connection);
+        NodeController.DraggingNode.outputConnections.add(connection);
     }
 }

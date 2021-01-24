@@ -1,5 +1,6 @@
 package sample;
 
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.CubicCurve;
 
@@ -21,6 +22,9 @@ public class Connection extends CubicCurve {
 
         this.inputNode.addInputConnection(this);
         this.outputNode.addOutputConnection(this);
+
+        Pane node = (Pane) inputNode.getNodeInner().getParent();
+        node.getChildren().add(this);
     }
 
     public void refreshCurvePos() {
