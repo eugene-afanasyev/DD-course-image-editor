@@ -11,17 +11,17 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.canvas.Canvas?>
 <?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.Pane?>
 <VBox fx:controller="sample.Controller" fx:id="layout"
       xmlns:fx="http://javafx.com/fxml" alignment="TOP_CENTER" minHeight="720" minWidth="1280">
     <ToolBar fx:id="toolbar">
         <Button fx:id="loadButton" text="Load" onMouseClicked="#load"/>
     </ToolBar>
-    <ScrollPane fx:id="imageWrapper" maxHeight="600" minHeight="500" minWidth="1280">
+    <ScrollPane fx:id="imageWrapper" maxHeight="600" minHeight="300" minWidth="1280">
         <ImageView fx:id="mainImage" onScroll="#handleImageScroll"/>
     </ScrollPane>
-    <ScrollPane fx:id="workspaceWrapper" maxHeight="400" minHeight="200" minWidth="1280" onScroll="#handleWorkspaceWrapperScroll">
-        <StackPane fx:id="workspaceBox">
-
-        </StackPane>
+    <ScrollPane fx:id="workspaceWrapper" maxHeight="600" minHeight="300" minWidth="1280" onScroll="#handleWorkspaceWrapperScroll">
+        <Pane fx:id="workspaceBox" VBox.vgrow="ALWAYS" minWidth="1280">
+        </Pane>
     </ScrollPane>
 </VBox>
