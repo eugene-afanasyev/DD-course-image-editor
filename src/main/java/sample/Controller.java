@@ -86,6 +86,9 @@ public class Controller {
     }
 
     public void processImage() {
+        if (originalImage == null)
+            return;
+
         processedImage = originalImage.clone();
         for (Connection connection : resultNode.getInputConnections()) {
             connection.outputNode.processImage(processedImage);
@@ -119,7 +122,7 @@ public class Controller {
         workspaceBox.getChildren().add(loader.load());
         NodeController grayscaleNode = loader.getController();
         Label label = new Label("Grayscale");
-        label.setStyle("-fx-font-size: 14; -fx-text-fill: white");
+        label.setStyle("-fx-font-size: 18; -fx-text-fill: white");
         grayscaleNode.getCenterPane().getChildren().add(label);
         grayscaleNode.setProcessFunc((Mat mat) -> {
             Imgproc.cvtColor(originalImage, mat, Imgproc.COLOR_RGB2GRAY);

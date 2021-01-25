@@ -12,10 +12,18 @@
 <?import javafx.scene.canvas.Canvas?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.Pane?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuItem?>
 <VBox fx:controller="sample.Controller" fx:id="layout"
       xmlns:fx="http://javafx.com/fxml" alignment="TOP_CENTER" minHeight="720" minWidth="1280">
     <ToolBar fx:id="toolbar">
-        <Button fx:id="loadButton" text="Load" onMouseClicked="#load"/>
+        <Button fx:id="loadButton" text="Load" onMouseClicked="#load" style="-fx-font-size: 20" minWidth="30"/>
+        <MenuBar>
+            <Menu text="Add node" style="-fx-font-size: 20">
+                <MenuItem text="Grayscale" onAction="#addGrayscaleNode"/>
+            </Menu>
+        </MenuBar>
     </ToolBar>
     <ScrollPane fx:id="imageWrapper" maxHeight="600" minHeight="300" minWidth="1280">
         <ImageView fx:id="mainImage" onScroll="#handleImageScroll"/>
