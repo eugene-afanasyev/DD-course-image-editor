@@ -11,8 +11,9 @@
 <BorderPane fx:controller="sample.NodeController"
             xmlns:fx="http://javafx.com/fxml" fx:id="nodeInner" minWidth="160" minHeight="80" prefHeight="80" maxWidth="250" maxHeight="160">
     <left>
-        <VBox minWidth="30" onDragDetected="#onOutputPaneDragDetected">
-            <VBox fx:id="outputPane" style="-fx-background-color: #2064a0" VBox.vgrow="ALWAYS"/>
+        <VBox minWidth="30">
+            <VBox fx:id="outputPane" style="-fx-background-color: #2064a0" VBox.vgrow="ALWAYS"
+            onMouseDragReleased="#onOutputNodeDragReleased" onDragDetected="#onLinkPaneDragDetected"/>
         </VBox>
     </left>
     <center>
@@ -24,7 +25,7 @@
     <right>
         <VBox minWidth="30">
             <VBox fx:id="inputPane" VBox.vgrow="ALWAYS" style="-fx-background-color: #276f35"
-            onMouseDragReleased="#onInputNodeDragReleased"/>
+            onMouseDragReleased="#onInputNodeDragReleased" onDragDetected="#onLinkPaneDragDetected"/>
         </VBox>
     </right>
 </BorderPane>

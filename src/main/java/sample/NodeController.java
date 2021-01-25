@@ -105,16 +105,33 @@ public class NodeController {
         }
     }
 
-    public void onOutputPaneDragDetected(MouseEvent event) {
+    public void onLinkPaneDragDetected(MouseEvent event) {
         DraggingNode = this;
-        outputPane.startFullDrag();
+
+        if (event.getSource() == outputPane)
+            outputPane.startFullDrag();
+        else
+            inputPane.startFullDrag();
+
         event.consume();
     }
 
     public void onInputNodeDragReleased(MouseDragEvent mouseDragEvent) {
-        Connection connection = new Connection(this, NodeController.DraggingNode);
-        inputConnections.add(connection);
-        DraggingNode.outputConnections.add(connection);
+        if (mouseDragEvent.getGestureSource() == DraggingNode.getOutputPane() &&
+            DraggingNode != this) {
+            Connection connection = new Connection(this, DraggingNode);
+            inputConnections.add(connection);
+            DraggingNode.outputConnections.add(connection);
+        }
+    }
+
+    public void onOutputNodeDragReleased(MouseDragEvent mouseDragEvent) {
+        if (mouseDragEvent.getGestureSource() == DraggingNode.getInputPane() &&
+            DraggingNode != this) {
+            Connection connection = new Connection(DraggingNode, this);
+            outputConnections.add(connection);
+            DraggingNode.inputConnections.add(connection);
+        }
     }
 
     public void setProcessFunc(Consumer<Mat> processFunc) {
