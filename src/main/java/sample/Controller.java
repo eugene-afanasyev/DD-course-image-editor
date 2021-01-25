@@ -23,6 +23,8 @@ import org.opencv.imgproc.Imgproc;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Controller {
     @FXML
@@ -45,6 +47,9 @@ public class Controller {
     private Mat originalImage;
     private Mat processedImage;
 
+    // additional map to traverse nodes
+    private Map<NodeController, Boolean> nodes;
+
     public void handleImageScroll(ScrollEvent scrollEvent) {
         mainImage.setFitHeight(mainImage.getFitHeight() + scrollEvent.getDeltaY() / 2.0);
     }
@@ -60,7 +65,7 @@ public class Controller {
         resultNode.getCenterPane().setOnMouseDragged(null);
         resultNode.getOutputPane().setMaxWidth(0);
 
-        resultNode.getInputConnections().addListener(new ListChangeListener<Connection>() {
+        resultNode.getInputConnections().addListener(new ListChangeListener<>() {
             @Override
             public void onChanged(Change<? extends Connection> change) {
                 while(change.next()) {
@@ -69,6 +74,9 @@ public class Controller {
                 }
             }
         });
+
+        nodes = new HashMap<>();
+        nodes.put(resultNode, true);
     }
 
     public void handleWorkspaceWrapperScroll(ScrollEvent scrollEvent) {}
@@ -90,9 +98,13 @@ public class Controller {
             return;
 
         processedImage = originalImage.clone();
+
+        nodes.put(resultNode, false);
         for (Connection connection : resultNode.getInputConnections()) {
-            connection.outputNode.processImage(processedImage);
-            traverseNode(connection);
+            if (nodes.get(connection.getOutputNode())) {
+                connection.getOutputNode().processImage(processedImage);
+                traverseNode(connection);
+            }
         }
         try {
             File file = new File("tmp.jpg");
@@ -108,13 +120,19 @@ public class Controller {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        nodes.put(resultNode, true);
     }
 
     public void traverseNode(Connection connection) {
+        nodes.put(connection.getOutputNode(), false);
         for (Connection con : connection.getOutputNode().getInputConnections()) {
-            con.outputNode.processImage(processedImage);
-            traverseNode(con);
+            if (nodes.get(con.getOutputNode())) {
+                con.outputNode.processImage(processedImage);
+                traverseNode(con);
+            }
         }
+        nodes.put(connection.getOutputNode(), true);
     }
 
     public void addGrayscaleNode(ActionEvent actionEvent) throws IOException {
@@ -130,27 +148,27 @@ public class Controller {
         });
 
         addNodeRemoveButton(grayscaleNode);
+        nodes.put(grayscaleNode, true);
     }
 
     private void addNodeRemoveButton(NodeController node) {
         Button removeButton = new Button("Remove");
         node.getCenterPane().getChildren().add(removeButton);
 
-        removeButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                workspaceBox.getChildren().remove(node.getNodeInner());
+        removeButton.setOnMouseClicked((MouseEvent event) -> {
+            workspaceBox.getChildren().remove(node.getNodeInner());
 
-                for (Connection connection : node.getInputConnections()) {
-                    workspaceBox.getChildren().remove(connection);
-                }
-                for (Connection connection : node.getOutputConnections()) {
-                    workspaceBox.getChildren().remove(connection);
-                }
-
-                node.remove();
-                processImage();
+            for (Connection connection : node.getInputConnections()) {
+                workspaceBox.getChildren().remove(connection);
             }
+            for (Connection connection : node.getOutputConnections()) {
+                workspaceBox.getChildren().remove(connection);
+            }
+
+            node.remove();
+
+            nodes.remove(node);
+            processImage();
         });
     }
 }
