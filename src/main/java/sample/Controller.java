@@ -136,12 +136,7 @@ public class Controller {
     }
 
     public void addGrayscaleNode(ActionEvent actionEvent) throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/DraggableNode.fxml"));
-        workspaceBox.getChildren().add(loader.load());
-        NodeController grayscaleNode = loader.getController();
-        Label label = new Label("Grayscale");
-        label.setStyle("-fx-font-size: 18; -fx-text-fill: white");
-        grayscaleNode.getCenterPane().getChildren().add(label);
+        NodeController grayscaleNode = createNodeTemplate("GrayScale");
         grayscaleNode.setProcessFunc((Mat mat) -> {
             Imgproc.cvtColor(originalImage, mat, Imgproc.COLOR_RGB2GRAY);
             System.out.println(1);
@@ -149,6 +144,20 @@ public class Controller {
 
         addNodeRemoveButton(grayscaleNode);
         nodes.put(grayscaleNode, true);
+    }
+
+    private NodeController createNodeTemplate(String title) {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/DraggableNode.fxml"));
+        try {
+            workspaceBox.getChildren().add(loader.load());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        NodeController node = loader.getController();
+        Label label = new Label(title);
+        label.setStyle("-fx-font-size: 18; -fx-text-fill: white");
+
+        return node;
     }
 
     private void addNodeRemoveButton(NodeController node) {

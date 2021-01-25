@@ -17,7 +17,7 @@
     </left>
     <center>
         <VBox minWidth="100" alignment="CENTER">
-            <VBox fx:id="centerPane" VBox.vgrow="ALWAYS"
+            <VBox fx:id="centerPane" VBox.vgrow="ALWAYS" alignment="CENTER"
                   style="-fx-background-color: #4e4e4e;" onMouseDragged="#onNodeMouseDragged"/>
         </VBox>
     </center>
