@@ -18,7 +18,12 @@
 <VBox fx:controller="sample.Controller" fx:id="layout"
       xmlns:fx="http://javafx.com/fxml" alignment="TOP_CENTER" minHeight="720" minWidth="1280">
     <ToolBar fx:id="toolbar">
-        <Button fx:id="loadButton" text="Load" onMouseClicked="#load" style="-fx-font-size: 20" minWidth="30"/>
+        <MenuBar>
+            <Menu text="file" style="-fx-font-size: 20">
+                <MenuItem text="Load" onAction="#loadImage"/>
+                <MenuItem text="Save" onAction="#saveImage"/>
+            </Menu>
+        </MenuBar>
         <MenuBar>
             <Menu text="Add node" style="-fx-font-size: 20">
                 <MenuItem text="Grayscale" onAction="#addGrayscaleNode"/>

@@ -1,6 +1,7 @@
 package sample;
 
 import javafx.collections.ListChangeListener;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -21,6 +22,10 @@ import org.opencv.core.Mat;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -49,6 +54,8 @@ public class Controller {
 
     // additional map to traverse nodes
     private Map<NodeController, Boolean> nodes;
+
+    private String tmpImagePath = "tmp.jpg";
 
     public void handleImageScroll(ScrollEvent scrollEvent) {
         mainImage.setFitHeight(mainImage.getFitHeight() + scrollEvent.getDeltaY() / 2.0);
@@ -81,16 +88,19 @@ public class Controller {
 
     public void handleWorkspaceWrapperScroll(ScrollEvent scrollEvent) {}
 
-    public void load(MouseEvent event) {
+    public void loadImage(ActionEvent actionEvent) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Choose an image");
         File file = fileChooser.showOpenDialog(new Stage());
-        mainImage.setImage(new Image(file.toURI().toString()));
-        mainImage.setPreserveRatio(true);
-        mainImage.setFitHeight(mainImage.getImage().getHeight());
-        mainImage.setFitWidth(mainImage.getImage().getWidth());
+        if (file.exists()) {
+            mainImage.setImage(new Image(file.toURI().toString()));
+            mainImage.setPreserveRatio(true);
+            mainImage.setFitHeight(mainImage.getImage().getHeight());
+            mainImage.setFitWidth(mainImage.getImage().getWidth());
 
-        originalImage = Imgcodecs.imread(file.getAbsolutePath());
+            originalImage = Imgcodecs.imread(file.getAbsolutePath());
+            processedImage = originalImage.clone();
+        }
     }
 
     public void processImage() {
@@ -107,13 +117,13 @@ public class Controller {
             }
         }
         try {
-            File file = new File("tmp.jpg");
+            File file = new File(tmpImagePath);
 
             if (file.exists()) {
                 file.delete();
             }
             if (file.createNewFile()) {
-                Imgcodecs.imwrite("tmp.jpg", processedImage);
+                Imgcodecs.imwrite(tmpImagePath, processedImage);
             }
 
             mainImage.setImage(new Image(file.toURI().toString()));
@@ -139,7 +149,6 @@ public class Controller {
         NodeController grayscaleNode = createNodeTemplate("GrayScale");
         grayscaleNode.setProcessFunc((Mat mat) -> {
             Imgproc.cvtColor(originalImage, mat, Imgproc.COLOR_RGB2GRAY);
-            System.out.println(1);
         });
 
         addNodeRemoveButton(grayscaleNode);
@@ -156,6 +165,7 @@ public class Controller {
         NodeController node = loader.getController();
         Label label = new Label(title);
         label.setStyle("-fx-font-size: 18; -fx-text-fill: white");
+        node.getCenterPane().getChildren().add(label);
 
         return node;
     }
@@ -179,5 +189,21 @@ public class Controller {
             nodes.remove(node);
             processImage();
         });
+    }
+
+    public void saveImage(ActionEvent actionEvent) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save image");
+        File file = fileChooser.showSaveDialog(new Stage());
+
+        if (file != null) {
+            try {
+                Image img = mainImage.getImage();
+                ImageIO.write(SwingFXUtils.fromFXImage(img,
+                        null), "png", file);
+            } catch (IOException ex) {
+                System.out.println(ex.getMessage());
+            }
+        }
     }
 }
