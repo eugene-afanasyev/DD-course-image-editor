@@ -29,13 +29,13 @@ public class Connection extends CubicCurve {
 
     public void refreshCurvePos() {
         setStartX(inputNode.getInputPane().localToScene(0,0).getX());
-        setStartY(inputNode.getNodeInner().localToParent(0,0).getY() + 40);
+        setStartY(inputNode.getNodeInner().localToParent(0,0).getY() + inputNode.getNodeInner().getHeight() / 2.0);
         setControlX1(inputNode.getInputPane().localToScene(0,0).getX() + 20);
         setControlY1(inputNode.getNodeInner().localToParent(0,0).getY());
         setControlX2(outputNode.getNodeInner().localToParent(0,0).getX() - 20);
         setControlY2(outputNode.getNodeInner().localToParent(0,0).getY());
         setEndX(outputNode.getNodeInner().localToParent(0,0).getX() + 5);
-        setEndY(outputNode.getNodeInner().localToParent(0,0).getY() + 40);
+        setEndY(outputNode.getNodeInner().localToParent(0,0).getY() + inputNode.getNodeInner().getHeight() / 2.0);
     }
 
     public NodeController getInputNode() {

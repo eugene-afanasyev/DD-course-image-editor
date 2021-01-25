@@ -13,9 +13,12 @@ import javafx.scene.input.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import org.opencv.core.Mat;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class NodeController {
     @FXML
@@ -32,9 +35,12 @@ public class NodeController {
 
     private static NodeController DraggingNode;
 
+    public Consumer<Mat> processFunc;
+
     public void initialize() {
-        inputConnections = FXCollections.observableList(new ArrayList<>());
-        outputConnections = FXCollections.observableList(new ArrayList<>());
+        inputConnections = FXCollections.observableArrayList();
+        outputConnections = FXCollections.observableArrayList();
+        processFunc = (Mat a) -> {};
     }
 
     public ObservableList<Connection> getInputConnections() {
@@ -101,7 +107,6 @@ public class NodeController {
 
     public void onOutputPaneDragDetected(MouseEvent event) {
         DraggingNode = this;
-
         outputPane.startFullDrag();
         event.consume();
     }
@@ -109,6 +114,24 @@ public class NodeController {
     public void onInputNodeDragReleased(MouseDragEvent mouseDragEvent) {
         Connection connection = new Connection(this, NodeController.DraggingNode);
         inputConnections.add(connection);
-        NodeController.DraggingNode.outputConnections.add(connection);
+        DraggingNode.outputConnections.add(connection);
+    }
+
+    public void setProcessFunc(Consumer<Mat> processFunc) {
+        this.processFunc = processFunc;
+    }
+
+    public void processImage(Mat mat) {
+        processFunc.accept(mat);
+    }
+
+    public void remove() {
+        for (Connection connection : inputConnections) {
+            connection.outputNode.outputConnections.remove(connection);
+        }
+
+        for (Connection connection : outputConnections) {
+            connection.inputNode.inputConnections.remove(connection);
+        }
     }
 }
