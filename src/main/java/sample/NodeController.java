@@ -32,7 +32,7 @@ public class NodeController {
 
     private ObservableList<NodeController> inputNodes;
 
-    private static NodeController DraggingNode;
+    public static NodeController DraggingNode;
 
     public Consumer<Mat> processFunc;
 
@@ -93,16 +93,16 @@ public class NodeController {
     public void onInputNodeDragReleased(MouseDragEvent mouseDragEvent) {
         if (mouseDragEvent.getGestureSource() == DraggingNode.getOutputPane() &&
             DraggingNode != this) {
-            Controller.connections.add(new Connection(this, DraggingNode));
             inputNodes.add(DraggingNode);
+            Controller.connections.add(new Connection(this, DraggingNode));
         }
     }
 
     public void onOutputNodeDragReleased(MouseDragEvent mouseDragEvent) {
         if (mouseDragEvent.getGestureSource() == DraggingNode.getInputPane() &&
             DraggingNode != this) {
-            Controller.connections.add(new Connection(DraggingNode, this));
             DraggingNode.inputNodes.add(this);
+            Controller.connections.add(new Connection(DraggingNode, this));
         }
     }
 

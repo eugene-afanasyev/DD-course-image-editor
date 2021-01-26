@@ -9,16 +9,20 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ToolBar;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseDragEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.CubicCurve;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.opencv.core.Mat;
@@ -60,18 +64,16 @@ public class Controller {
 
     private final String tmpImagePath = "tmp.jpg";
 
+//    private double start_x, start_y;
+//    CubicCurve draggingCurve;
+
     public void handleImageScroll(ScrollEvent scrollEvent) {
         mainImage.setFitHeight(mainImage.getFitHeight() + scrollEvent.getDeltaY() / 2.0);
     }
 
     public void initialize() throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/DraggableNode.fxml"));
-        workspaceBox.getChildren().add(loader.load());
-        resultNode = loader.getController();
-        Label label = new Label("result node");
-        label.setWrapText(true);
-        label.setStyle("-fx-font-size: 20; -fx-text-fill: white");
-        resultNode.getCenterPane().getChildren().add(label);
+        resultNode = createNodeTemplate("Result Node");
+        resultNode.getCenterPane().getChildren().removeIf((Node n) -> (n instanceof Button));
         resultNode.getCenterPane().setOnMouseDragged(null);
         resultNode.getOutputPane().setMaxWidth(0);
 
@@ -89,13 +91,11 @@ public class Controller {
         });
     }
 
-    public void handleWorkspaceWrapperScroll(ScrollEvent scrollEvent) {}
-
     public void loadImage(ActionEvent actionEvent) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Choose an image");
         File file = fileChooser.showOpenDialog(new Stage());
-        if (file.exists()) {
+        if (file != null && file.exists()) {
             mainImage.setImage(new Image(file.toURI().toString()));
             mainImage.setPreserveRatio(true);
             mainImage.setFitHeight(mainImage.getImage().getHeight());
@@ -109,15 +109,10 @@ public class Controller {
     public void processImage() {
         if (originalImage == null)
             return;
-
         processedImage = originalImage.clone();
 
-//        for (Connection connection : resultNode.getInputConnections()) {
-//            if (nodes.get(connection.getOutputNode())) {
-//                connection.getOutputNode().processImage(processedImage);
-//                traverseNode(connection);
-//            }
-//        }
+        traverseNode(resultNode);
+
         try {
             File file = new File(tmpImagePath);
 
@@ -134,24 +129,19 @@ public class Controller {
         }
     }
 
-    public void traverseNode(Connection connection) {
-//        nodes.put(connection.getOutputNode(), false);
-//        for (Connection con : connection.getOutputNode().getInputConnections()) {
-//            if (nodes.get(con.getOutputNode())) {
-//                con.outputNode.processImage(processedImage);
-//                traverseNode(con);
-//            }
-//        }
+    public void traverseNode(NodeController node) {
+        node.processImage(processedImage);
+        for (NodeController nodeController : node.getInputNodes()) {
+            System.out.println(1);
+            traverseNode(nodeController);
+        }
     }
 
     public void addGrayscaleNode(ActionEvent actionEvent) throws IOException {
         NodeController grayscaleNode = createNodeTemplate("GrayScale");
         grayscaleNode.setProcessFunc((Mat mat) -> {
             Imgproc.cvtColor(originalImage, mat, Imgproc.COLOR_RGB2GRAY);
-            System.out.println(1);
         });
-
-        addNodeRemoveButton(grayscaleNode);
     }
 
     private NodeController createNodeTemplate(String title) {
@@ -166,26 +156,16 @@ public class Controller {
         label.setStyle("-fx-font-size: 18; -fx-text-fill: white");
         node.getCenterPane().getChildren().add(label);
 
-        return node;
-    }
-
-    private void addNodeRemoveButton(NodeController node) {
         Button removeButton = new Button("Remove");
         node.getCenterPane().getChildren().add(removeButton);
 
         removeButton.setOnMouseClicked((MouseEvent event) -> {
             workspaceBox.getChildren().remove(node.getNodeInner());
-
-//            for (Connection connection : node.getInputConnections()) {
-//                workspaceBox.getChildren().remove(connection);
-//            }
-//            for (Connection connection : node.getOutputConnections()) {
-//                workspaceBox.getChildren().remove(connection);
-//            }
-
             node.remove();
             processImage();
         });
+
+        return node;
     }
 
     public void saveImage(ActionEvent actionEvent) {
@@ -203,4 +183,41 @@ public class Controller {
             }
         }
     }
+
+//    public void onWorkspaceDragDetected(MouseEvent event) {
+////        if (NodeController.DraggingNode == null)
+////            return;
+//
+//        System.out.println(1);
+//        if (event.getPickResult().getIntersectedNode() == NodeController.DraggingNode.getNodeInner()) {
+//            System.out.println(2);
+//            draggingCurve = new CubicCurve();
+//            workspaceBox.startFullDrag();
+//            start_x = event.getX();
+//            start_y = event.getY();
+//            workspaceBox.getChildren().add(draggingCurve);
+//            event.consume();
+//        }
+//    }
+//
+//    public void onWorkspaceMouseDragged(MouseEvent event) {
+//        draggingCurve = new CubicCurve();
+//        draggingCurve.setFill(null);
+//        draggingCurve.setStrokeWidth(2);
+//        draggingCurve.setStroke(Color.BLACK);
+//        draggingCurve.setStartX(start_x);
+//        draggingCurve.setStartY(start_y);
+//        draggingCurve.setControlX1(start_x);
+//        draggingCurve.setControlY1(start_y + 50);
+//        draggingCurve.setControlX2(event.getX());
+//        draggingCurve.setControlY2(event.getY() + 50);
+//        draggingCurve.setEndX(event.getX());
+//        draggingCurve.setEndY(event.getY());
+//
+//        event.consume();
+//    }
+//
+//    public void onWorkspaceDragReleased(MouseDragEvent mouseDragEvent) {
+//        workspaceBox.getChildren().remove(draggingCurve);
+//    }
 }
