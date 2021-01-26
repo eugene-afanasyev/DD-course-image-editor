@@ -30,33 +30,15 @@ public class NodeController {
     @FXML
     private BorderPane nodeInner;
 
-    private ObservableList<Connection> inputConnections;
-    private ObservableList<Connection> outputConnections;
+    private ObservableList<NodeController> inputNodes;
 
     private static NodeController DraggingNode;
 
     public Consumer<Mat> processFunc;
 
     public void initialize() {
-        inputConnections = FXCollections.observableArrayList();
-        outputConnections = FXCollections.observableArrayList();
+        inputNodes = FXCollections.observableArrayList();
         processFunc = (Mat a) -> {};
-    }
-
-    public ObservableList<Connection> getInputConnections() {
-        return inputConnections;
-    }
-
-    public ObservableList<Connection> getOutputConnections() {
-        return outputConnections;
-    }
-
-    public void addInputConnection(Connection connection) {
-        inputConnections.add(connection);
-    }
-
-    public void addOutputConnection(Connection connection) {
-        outputConnections.add(connection);
     }
 
     public VBox getOutputPane() {
@@ -75,20 +57,16 @@ public class NodeController {
         return nodeInner;
     }
 
-    public void setOutputPane(VBox outputPane) {
-        this.outputPane = outputPane;
+    public ObservableList<NodeController> getInputNodes() {
+        return inputNodes;
+    }
+
+    public void setInputNodes(ObservableList<NodeController> inputNodes) {
+        this.inputNodes = inputNodes;
     }
 
     public void setCenterPane(VBox centerPane) {
         this.centerPane = centerPane;
-    }
-
-    public void setInputPane(VBox inputPane) {
-        this.inputPane = inputPane;
-    }
-
-    public void setNodeInner(BorderPane nodeInner) {
-        this.nodeInner = nodeInner;
     }
 
     public void onNodeMouseDragged(MouseEvent event) {
@@ -96,11 +74,7 @@ public class NodeController {
         nodeInner.setTranslateX(event.getSceneX());
         nodeInner.setTranslateY(event.getSceneY() - point2D.getY());
 
-        for (Connection connection : inputConnections) {
-            connection.refreshCurvePos();
-        }
-
-        for (Connection connection : outputConnections) {
+        for (Connection connection : Controller.connections) {
             connection.refreshCurvePos();
         }
     }
@@ -119,18 +93,16 @@ public class NodeController {
     public void onInputNodeDragReleased(MouseDragEvent mouseDragEvent) {
         if (mouseDragEvent.getGestureSource() == DraggingNode.getOutputPane() &&
             DraggingNode != this) {
-            Connection connection = new Connection(this, DraggingNode);
-            inputConnections.add(connection);
-            DraggingNode.outputConnections.add(connection);
+            Controller.connections.add(new Connection(this, DraggingNode));
+            inputNodes.add(DraggingNode);
         }
     }
 
     public void onOutputNodeDragReleased(MouseDragEvent mouseDragEvent) {
         if (mouseDragEvent.getGestureSource() == DraggingNode.getInputPane() &&
             DraggingNode != this) {
-            Connection connection = new Connection(DraggingNode, this);
-            outputConnections.add(connection);
-            DraggingNode.inputConnections.add(connection);
+            Controller.connections.add(new Connection(DraggingNode, this));
+            DraggingNode.inputNodes.add(this);
         }
     }
 
@@ -143,12 +115,19 @@ public class NodeController {
     }
 
     public void remove() {
-        for (Connection connection : inputConnections) {
-            connection.outputNode.outputConnections.remove(connection);
+        ObservableList<Connection> matchingCons = FXCollections.observableArrayList();
+        for (Connection connection : Controller.connections) {
+            if (connection.getInputNode() == this) {
+                matchingCons.add(connection);
+                inputNodes.remove(connection.getOutputNode());
+            } else if (connection.getOutputNode() == this) {
+                matchingCons.add(connection);
+                connection.getInputNode().getInputNodes().remove(this);
+            }
         }
 
-        for (Connection connection : outputConnections) {
-            connection.inputNode.inputConnections.remove(connection);
+        for (Connection connection : matchingCons) {
+            Controller.connections.remove(connection);
         }
     }
 }

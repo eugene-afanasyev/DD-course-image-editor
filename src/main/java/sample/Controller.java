@@ -1,6 +1,9 @@
 package sample;
 
+import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -28,6 +31,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -52,10 +56,9 @@ public class Controller {
     private Mat originalImage;
     private Mat processedImage;
 
-    // additional map to traverse nodes
-    private Map<NodeController, Boolean> nodes;
+    public static ObservableList<Connection> connections;
 
-    private String tmpImagePath = "tmp.jpg";
+    private final String tmpImagePath = "tmp.jpg";
 
     public void handleImageScroll(ScrollEvent scrollEvent) {
         mainImage.setFitHeight(mainImage.getFitHeight() + scrollEvent.getDeltaY() / 2.0);
@@ -72,18 +75,18 @@ public class Controller {
         resultNode.getCenterPane().setOnMouseDragged(null);
         resultNode.getOutputPane().setMaxWidth(0);
 
-        resultNode.getInputConnections().addListener(new ListChangeListener<>() {
-            @Override
-            public void onChanged(Change<? extends Connection> change) {
-                while(change.next()) {
-                    if (change.wasAdded() || change.wasRemoved())
-                        processImage();
+        connections = FXCollections.observableArrayList();
+        connections.addListener((ListChangeListener.Change<? extends Connection> change) -> {
+            while(change.next()) {
+                if (change.wasRemoved()) {
+                    processImage();
+                    for (Connection connection : change.getRemoved())
+                        workspaceBox.getChildren().remove(connection);
+                } else if (change.wasAdded()) {
+                    processImage();
                 }
             }
         });
-
-        nodes = new HashMap<>();
-        nodes.put(resultNode, true);
     }
 
     public void handleWorkspaceWrapperScroll(ScrollEvent scrollEvent) {}
@@ -109,13 +112,12 @@ public class Controller {
 
         processedImage = originalImage.clone();
 
-        nodes.put(resultNode, false);
-        for (Connection connection : resultNode.getInputConnections()) {
-            if (nodes.get(connection.getOutputNode())) {
-                connection.getOutputNode().processImage(processedImage);
-                traverseNode(connection);
-            }
-        }
+//        for (Connection connection : resultNode.getInputConnections()) {
+//            if (nodes.get(connection.getOutputNode())) {
+//                connection.getOutputNode().processImage(processedImage);
+//                traverseNode(connection);
+//            }
+//        }
         try {
             File file = new File(tmpImagePath);
 
@@ -130,29 +132,26 @@ public class Controller {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        nodes.put(resultNode, true);
     }
 
     public void traverseNode(Connection connection) {
-        nodes.put(connection.getOutputNode(), false);
-        for (Connection con : connection.getOutputNode().getInputConnections()) {
-            if (nodes.get(con.getOutputNode())) {
-                con.outputNode.processImage(processedImage);
-                traverseNode(con);
-            }
-        }
-        nodes.put(connection.getOutputNode(), true);
+//        nodes.put(connection.getOutputNode(), false);
+//        for (Connection con : connection.getOutputNode().getInputConnections()) {
+//            if (nodes.get(con.getOutputNode())) {
+//                con.outputNode.processImage(processedImage);
+//                traverseNode(con);
+//            }
+//        }
     }
 
     public void addGrayscaleNode(ActionEvent actionEvent) throws IOException {
         NodeController grayscaleNode = createNodeTemplate("GrayScale");
         grayscaleNode.setProcessFunc((Mat mat) -> {
             Imgproc.cvtColor(originalImage, mat, Imgproc.COLOR_RGB2GRAY);
+            System.out.println(1);
         });
 
         addNodeRemoveButton(grayscaleNode);
-        nodes.put(grayscaleNode, true);
     }
 
     private NodeController createNodeTemplate(String title) {
@@ -177,16 +176,14 @@ public class Controller {
         removeButton.setOnMouseClicked((MouseEvent event) -> {
             workspaceBox.getChildren().remove(node.getNodeInner());
 
-            for (Connection connection : node.getInputConnections()) {
-                workspaceBox.getChildren().remove(connection);
-            }
-            for (Connection connection : node.getOutputConnections()) {
-                workspaceBox.getChildren().remove(connection);
-            }
+//            for (Connection connection : node.getInputConnections()) {
+//                workspaceBox.getChildren().remove(connection);
+//            }
+//            for (Connection connection : node.getOutputConnections()) {
+//                workspaceBox.getChildren().remove(connection);
+//            }
 
             node.remove();
-
-            nodes.remove(node);
             processImage();
         });
     }

@@ -20,9 +20,6 @@ public class Connection extends CubicCurve {
 
         refreshCurvePos();
 
-        this.inputNode.addInputConnection(this);
-        this.outputNode.addOutputConnection(this);
-
         Pane node = (Pane) inputNode.getNodeInner().getParent();
         node.getChildren().add(this);
     }
