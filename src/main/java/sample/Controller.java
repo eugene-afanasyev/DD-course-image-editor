@@ -64,8 +64,7 @@ public class Controller {
 
     private final String tmpImagePath = "tmp.jpg";
 
-//    private double start_x, start_y;
-//    CubicCurve draggingCurve;
+    public CubicCurve draggingCurve;
 
     public void handleImageScroll(ScrollEvent scrollEvent) {
         mainImage.setFitHeight(mainImage.getFitHeight() + scrollEvent.getDeltaY() / 2.0);
@@ -91,7 +90,6 @@ public class Controller {
                 }
             }
         });
-
     }
 
     public void loadImage(ActionEvent actionEvent) {
@@ -135,7 +133,6 @@ public class Controller {
     public void traverseNode(NodeController node) {
         node.processImage(processedImage);
         for (NodeController nodeController : node.getInputNodes()) {
-            System.out.println(1);
             traverseNode(nodeController);
         }
     }
@@ -187,40 +184,29 @@ public class Controller {
         }
     }
 
-//    public void onWorkspaceDragDetected(MouseEvent event) {
-////        if (NodeController.DraggingNode == null)
-////            return;
-//
-//        System.out.println(1);
-//        if (event.getPickResult().getIntersectedNode() == NodeController.DraggingNode.getNodeInner()) {
-//            System.out.println(2);
-//            draggingCurve = new CubicCurve();
-//            workspaceBox.startFullDrag();
-//            start_x = event.getX();
-//            start_y = event.getY();
-//            workspaceBox.getChildren().add(draggingCurve);
-//            event.consume();
-//        }
-//    }
-//
-//    public void onWorkspaceMouseDragged(MouseEvent event) {
-//        draggingCurve = new CubicCurve();
-//        draggingCurve.setFill(null);
-//        draggingCurve.setStrokeWidth(2);
-//        draggingCurve.setStroke(Color.BLACK);
-//        draggingCurve.setStartX(start_x);
-//        draggingCurve.setStartY(start_y);
-//        draggingCurve.setControlX1(start_x);
-//        draggingCurve.setControlY1(start_y + 50);
-//        draggingCurve.setControlX2(event.getX());
-//        draggingCurve.setControlY2(event.getY() + 50);
-//        draggingCurve.setEndX(event.getX());
-//        draggingCurve.setEndY(event.getY());
-//
-//        event.consume();
-//    }
-//
-//    public void onWorkspaceDragReleased(MouseDragEvent mouseDragEvent) {
-//        workspaceBox.getChildren().remove(draggingCurve);
-//    }
+    public void onMouseDragged(MouseEvent event) {
+        if (NodeController.DraggingNode == null)
+            return;
+
+        if (draggingCurve == null) {
+            draggingCurve = new CubicCurve();
+            resultNode.initDraggingCurve(draggingCurve, event);
+            workspaceBox.getChildren().add(draggingCurve);
+        }
+        draggingCurve.setControlX2(event.getX() - 20);
+        draggingCurve.setControlY2(event.getY() + 20);
+        draggingCurve.setEndX(event.getX() - 1);
+        draggingCurve.setEndY(event.getY() - 1);
+        event.consume();
+    }
+
+    public void onWorkspaceMouseDragReleased(MouseDragEvent mouseDragEvent) {
+        workspaceBox.getChildren().remove(draggingCurve);
+        draggingCurve = null;
+        NodeController.DraggingNode = null;
+    }
+
+    public void onWorkspaceDragDetected(MouseEvent event) {
+        workspaceWrapper.startFullDrag();
+    }
 }

@@ -30,13 +30,11 @@
             </Menu>
         </MenuBar>
     </ToolBar>
-    <ScrollPane fx:id="imageWrapper" maxHeight="600" minHeight="300" minWidth="1280">
+    <ScrollPane fx:id="imageWrapper" maxHeight="600" minHeight="400" minWidth="1280">
         <ImageView fx:id="mainImage" onScroll="#handleImageScroll"/>
     </ScrollPane>
-    <ScrollPane fx:id="workspaceWrapper" maxHeight="600" minHeight="300" minWidth="1280">
-        <Pane fx:id="workspaceBox" VBox.vgrow="ALWAYS" minWidth="1280">
-<!--              onDragDetected="#onWorkspaceDragDetected"-->
-<!--        onMouseDragged="#onWorkspaceMouseDragged" onMouseDragReleased="#onWorkspaceDragReleased">-->
-        </Pane>
+    <ScrollPane fx:id="workspaceWrapper" maxHeight="500" minHeight="400" minWidth="1280"
+                onMouseDragReleased="#onWorkspaceMouseDragReleased" onDragDetected="#onWorkspaceDragDetected">
+            <Pane fx:id="workspaceBox" VBox.vgrow="ALWAYS" minWidth="1280" onMouseDragged="#onMouseDragged"/>
     </ScrollPane>
 </VBox>

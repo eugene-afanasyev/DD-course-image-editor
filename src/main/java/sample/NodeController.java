@@ -4,21 +4,16 @@ import com.sun.javafx.logging.Logger;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
-import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.input.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.CubicCurve;
 import org.opencv.core.Mat;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 public class NodeController {
     @FXML
@@ -79,6 +74,16 @@ public class NodeController {
         }
     }
 
+    public void initDraggingCurve(CubicCurve draggingCurve, MouseEvent event) {
+        draggingCurve.setFill(null);
+        draggingCurve.setStroke(Color.BLACK);
+        draggingCurve.setStrokeWidth(2);
+        draggingCurve.setStartX(event.getX());
+        draggingCurve.setStartY(event.getY());
+        draggingCurve.setControlX1(event.getX() + 20);
+        draggingCurve.setControlY1(event.getY() + 20);
+    }
+
     public void onLinkPaneDragDetected(MouseEvent event) {
         DraggingNode = this;
 
@@ -96,6 +101,7 @@ public class NodeController {
             inputNodes.add(DraggingNode);
             Controller.connections.add(new Connection(this, DraggingNode));
         }
+        DraggingNode = null;
     }
 
     public void onOutputNodeDragReleased(MouseDragEvent mouseDragEvent) {
@@ -104,6 +110,7 @@ public class NodeController {
             DraggingNode.inputNodes.add(this);
             Controller.connections.add(new Connection(DraggingNode, this));
         }
+        DraggingNode = null;
     }
 
     public void setProcessFunc(Consumer<Mat> processFunc) {
