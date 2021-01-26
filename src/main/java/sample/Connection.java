@@ -4,6 +4,9 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.CubicCurve;
 
+import java.awt.event.InputEvent;
+import java.awt.event.MouseEvent;
+import java.io.InputStream;
 
 
 public class Connection extends CubicCurve {
@@ -22,6 +25,11 @@ public class Connection extends CubicCurve {
 
         Pane node = (Pane) inputNode.getNodeInner().getParent();
         node.getChildren().add(this);
+
+        this.setOnMouseClicked((event) -> {
+            if (event.isControlDown())
+                Controller.connections.remove(this);
+        });
     }
 
     public void refreshCurvePos() {

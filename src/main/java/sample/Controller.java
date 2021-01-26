@@ -81,14 +81,17 @@ public class Controller {
         connections.addListener((ListChangeListener.Change<? extends Connection> change) -> {
             while(change.next()) {
                 if (change.wasRemoved()) {
-                    processImage();
-                    for (Connection connection : change.getRemoved())
+                    for (Connection connection : change.getRemoved()) {
                         workspaceBox.getChildren().remove(connection);
+                        connection.getInputNode().getInputNodes().remove(connection.getOutputNode());
+                    }
+                    processImage();
                 } else if (change.wasAdded()) {
                     processImage();
                 }
             }
         });
+
     }
 
     public void loadImage(ActionEvent actionEvent) {
