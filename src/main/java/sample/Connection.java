@@ -15,7 +15,7 @@ public class Connection extends CubicCurve {
 
     public Connection(NodeController inputNode, NodeController outputNode) {
         this.setStroke(Color.BLACK);
-        this.setStrokeWidth(2);
+        this.setStrokeWidth(4);
         this.setFill(null);
 
         this.inputNode = inputNode;

@@ -1,5 +1,7 @@
 package sample;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -9,11 +11,12 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Orientation;
 import javafx.scene.Node;
+import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.control.ToolBar;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseDragEvent;
@@ -25,12 +28,15 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.CubicCurve;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import org.opencv.core.Core;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.io.File;
@@ -140,7 +146,7 @@ public class Controller {
     public void addGrayscaleNode(ActionEvent actionEvent) throws IOException {
         NodeController grayscaleNode = createNodeTemplate("GrayScale");
         grayscaleNode.setProcessFunc((Mat mat) -> {
-            Imgproc.cvtColor(originalImage, mat, Imgproc.COLOR_RGB2GRAY);
+            Imgproc.cvtColor(processedImage, mat, Imgproc.COLOR_RGB2GRAY);
         });
     }
 
@@ -208,5 +214,15 @@ public class Controller {
 
     public void onWorkspaceDragDetected(MouseEvent event) {
         workspaceWrapper.startFullDrag();
+    }
+
+    public void addSepiaNode(ActionEvent actionEvent) {
+        NodeController sepiaNode = createNodeTemplate("Sepia");
+        sepiaNode.setProcessFunc((Mat src) -> {
+            Mat kernel = new Mat(3, 3, CvType.CV_32F);
+            double[] tmp = {0.272, 0.534, 0.131, 0.349, 0.686, 0.168, 0.393, 0.769, 0.189};
+            kernel.put(0,0, tmp);
+            Core.transform(processedImage, src, kernel);
+        });
     }
 }
