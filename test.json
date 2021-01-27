@@ -1,9 +1,43 @@
 {
-  "imagePath": "file:/home/eugene/IdeaProjects/DD-course-image-editor/winter-mountains-1024x512.jpg",
+  "imagePath": "file:/home/eugene/IdeaProjects/DD-course-image-editor/tmp.jpg",
   "nodes": {
     "type": "RESULT",
     "x": 0.0,
     "y": 0.0,
-    "inputNodes": []
+    "inputNodes": [
+      {
+        "type": "GRAYSCALE",
+        "x": 212.0,
+        "y": 108.0,
+        "inputNodes": [
+          {
+            "type": "SEPIA",
+            "x": 810.0,
+            "y": 20.0,
+            "inputNodes": []
+          }
+        ]
+      },
+      {
+        "type": "BLUR",
+        "x": 517.0,
+        "y": 110.0,
+        "blurSize": 13.5,
+        "inputNodes": [
+          {
+            "type": "GRAYSCALE",
+            "x": 800.0,
+            "y": 190.0,
+            "inputNodes": []
+          }
+        ]
+      },
+      {
+        "type": "SEPIA",
+        "x": 810.0,
+        "y": 20.0,
+        "inputNodes": []
+      }
+    ]
   }
 }

@@ -1,5 +1,6 @@
 package sample;
 
+import com.google.gson.*;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -40,7 +41,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -148,7 +151,9 @@ public class Controller {
         NodeController grayscaleNode = createNodeTemplate("GrayScale");
         grayscaleNode.setProcessFunc((Mat mat) -> {
             Imgproc.cvtColor(processedImage, mat, Imgproc.COLOR_RGB2GRAY);
+            Imgproc.cvtColor(processedImage, mat, Imgproc.COLOR_GRAY2RGB);
         });
+        grayscaleNode.type = NodeType.GRAYSCALE;
     }
 
     private NodeController createNodeTemplate(String title) {
@@ -233,6 +238,7 @@ public class Controller {
                 alert.showAndWait();
             }
         });
+        sepiaNode.type = NodeType.SEPIA;
     }
 
     public void addBlurringNode(ActionEvent actionEvent) {
@@ -257,5 +263,31 @@ public class Controller {
             sizeValue = sizeValue % 2 == 1 ? sizeValue : sizeValue + 1;
             Imgproc.GaussianBlur(processedImage, src, new Size(sizeValue, sizeValue), 0);
         });
+        blurringNode.type = NodeType.BLUR;
+    }
+
+
+    public void saveProject() throws IOException {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save project");
+        File file = fileChooser.showSaveDialog(new Stage());
+
+        if (file != null) {
+            Gson gson = new GsonBuilder()
+                    .setPrettyPrinting()
+                    .registerTypeAdapter(NodeController.class, new NodeSerializer())
+                    .create();
+            String serializedData = "";
+
+            JsonObject result = new JsonObject();
+            result.addProperty("imagePath", mainImage.getImage().getUrl());
+            result.add("nodes", JsonParser.parseString(gson.toJson(resultNode)).getAsJsonObject());
+            serializedData = gson.toJson(result);
+
+            BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+            writer.write(serializedData);
+
+            writer.close();
+        }
     }
 }
