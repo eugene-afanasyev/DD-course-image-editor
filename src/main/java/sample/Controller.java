@@ -31,6 +31,7 @@ import javafx.stage.Stage;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.Size;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
@@ -222,7 +223,22 @@ public class Controller {
             Mat kernel = new Mat(3, 3, CvType.CV_32F);
             double[] tmp = {0.272, 0.534, 0.131, 0.349, 0.686, 0.168, 0.393, 0.769, 0.189};
             kernel.put(0,0, tmp);
-            Core.transform(processedImage, src, kernel);
+            try {
+                Core.transform(processedImage, src, kernel);
+            } catch (Exception e) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("OpenCV assertion filed");
+                alert.setHeaderText("Advice:");
+                alert.setContentText("Using grayscale filter may cause this error");
+                alert.showAndWait();
+            }
+        });
+    }
+
+    public void addBlurringNode(ActionEvent actionEvent) {
+        NodeController blurringNode = createNodeTemplate("Blur");
+        blurringNode.setProcessFunc((Mat src) -> {
+            Imgproc.GaussianBlur(processedImage, src, new Size(15, 15), 0);
         });
     }
 }

@@ -96,6 +96,9 @@ public class NodeController {
     }
 
     public void onInputNodeDragReleased(MouseDragEvent mouseDragEvent) {
+        if (DraggingNode == null)
+            return;
+
         if (mouseDragEvent.getGestureSource() == DraggingNode.getOutputPane() &&
             DraggingNode != this) {
             inputNodes.add(DraggingNode);
@@ -105,6 +108,9 @@ public class NodeController {
     }
 
     public void onOutputNodeDragReleased(MouseDragEvent mouseDragEvent) {
+        if (DraggingNode == null)
+            return;
+
         if (mouseDragEvent.getGestureSource() == DraggingNode.getInputPane() &&
             DraggingNode != this) {
             DraggingNode.inputNodes.add(this);
