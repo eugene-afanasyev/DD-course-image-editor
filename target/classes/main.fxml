@@ -28,6 +28,7 @@
             <Menu text="Add node" style="-fx-font-size: 20">
                 <MenuItem text="Grayscale" onAction="#addGrayscaleNode"/>
                 <MenuItem text="Sepia node" onAction="#addSepiaNode"/>
+                <MenuItem text="Blurring node" onAction="#addBlurringNode"/>
             </Menu>
         </MenuBar>
     </ToolBar>

@@ -237,8 +237,25 @@ public class Controller {
 
     public void addBlurringNode(ActionEvent actionEvent) {
         NodeController blurringNode = createNodeTemplate("Blur");
+
+        Slider blurSizeSlider = new Slider(1, 30, 1);
+        blurSizeSlider.setShowTickMarks(true);
+        blurSizeSlider.setShowTickLabels(true);
+        blurSizeSlider.setSnapToTicks(true);
+        blurSizeSlider.setStyle("-fx-text-fill: white");
+        blurSizeSlider.valueProperty().addListener(((observableValue, number, t1) -> {
+            processImage();
+        }));
+
+        Label l = new Label("Blur size");
+        l.setStyle("-fx-text-fill: white; -fx-font-size: 18");
+
+        blurringNode.getCenterPane().getChildren().addAll(l, blurSizeSlider);
+
         blurringNode.setProcessFunc((Mat src) -> {
-            Imgproc.GaussianBlur(processedImage, src, new Size(15, 15), 0);
+            int sizeValue = (int) blurSizeSlider.getValue();
+            sizeValue = sizeValue % 2 == 1 ? sizeValue : sizeValue + 1;
+            Imgproc.GaussianBlur(processedImage, src, new Size(sizeValue, sizeValue), 0);
         });
     }
 }
