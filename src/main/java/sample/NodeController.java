@@ -1,19 +1,34 @@
 package sample;
 
+import com.google.gson.*;
 import com.sun.javafx.logging.Logger;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Point2D;
+import javafx.scene.Node;
+import javafx.scene.control.Slider;
 import javafx.scene.input.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.CubicCurve;
+import javafx.stage.FileChooser;
 import org.opencv.core.Mat;
 
+import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.function.Consumer;
+
+enum NodeType {
+    RESULT,
+    GRAYSCALE,
+    SEPIA,
+    BLUR
+}
 
 public class NodeController {
     @FXML
@@ -31,9 +46,12 @@ public class NodeController {
 
     public Consumer<Mat> processFunc;
 
+    public NodeType type;
+
     public void initialize() {
         inputNodes = FXCollections.observableArrayList();
         processFunc = (Mat a) -> {};
+        type = NodeType.RESULT;
     }
 
     public VBox getOutputPane() {
@@ -101,11 +119,12 @@ public class NodeController {
 
         if (mouseDragEvent.getGestureSource() == DraggingNode.getOutputPane() &&
             DraggingNode != this) {
-            if (!inputNodes.contains(DraggingNode)) {
+            if (!inputNodes.contains(DraggingNode) && !DraggingNode.getInputNodes().contains(this)) {
                 inputNodes.add(DraggingNode);
                 Controller.connections.add(new Connection(this, DraggingNode));
             }
         }
+
         DraggingNode = null;
     }
 
@@ -115,7 +134,7 @@ public class NodeController {
 
         if (mouseDragEvent.getGestureSource() == DraggingNode.getInputPane() &&
             DraggingNode != this) {
-            if (!DraggingNode.inputNodes.contains(this)) {
+            if (!DraggingNode.inputNodes.contains(this) && !inputNodes.contains(DraggingNode)) {
                 DraggingNode.inputNodes.add(this);
                 Controller.connections.add(new Connection(DraggingNode, this));
             }
@@ -146,5 +165,32 @@ public class NodeController {
         for (Connection connection : matchingCons) {
             Controller.connections.remove(connection);
         }
+    }
+}
+
+class NodeSerializer implements JsonSerializer<NodeController> {
+    @Override
+    public JsonElement serialize(NodeController src, Type type, JsonSerializationContext context) {
+        JsonObject result = new JsonObject();
+        result.addProperty("type", String.valueOf(src.type));
+        result.addProperty("x", src.getNodeInner().getTranslateX());
+        result.addProperty("y", src.getNodeInner().getTranslateY());
+
+        if (src.type == NodeType.BLUR) {
+            for (Node node : src.getCenterPane().getChildren()) {
+                if (node instanceof Slider) {
+                    var tmp = (Slider)node;
+                    result.addProperty("blurSize", tmp.getValue());
+                }
+            }
+        }
+
+        JsonArray inputNodes = new JsonArray();
+        for (NodeController inputNode : src.getInputNodes()) {
+            inputNodes.add(context.serialize(inputNode));
+        }
+        result.add("inputNodes", inputNodes);
+
+        return result;
     }
 }
