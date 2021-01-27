@@ -101,8 +101,10 @@ public class NodeController {
 
         if (mouseDragEvent.getGestureSource() == DraggingNode.getOutputPane() &&
             DraggingNode != this) {
-            inputNodes.add(DraggingNode);
-            Controller.connections.add(new Connection(this, DraggingNode));
+            if (!inputNodes.contains(DraggingNode)) {
+                inputNodes.add(DraggingNode);
+                Controller.connections.add(new Connection(this, DraggingNode));
+            }
         }
         DraggingNode = null;
     }
@@ -113,8 +115,10 @@ public class NodeController {
 
         if (mouseDragEvent.getGestureSource() == DraggingNode.getInputPane() &&
             DraggingNode != this) {
-            DraggingNode.inputNodes.add(this);
-            Controller.connections.add(new Connection(DraggingNode, this));
+            if (!DraggingNode.inputNodes.contains(this)) {
+                DraggingNode.inputNodes.add(this);
+                Controller.connections.add(new Connection(DraggingNode, this));
+            }
         }
         DraggingNode = null;
     }
