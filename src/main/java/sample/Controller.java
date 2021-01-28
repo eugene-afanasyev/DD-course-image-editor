@@ -1,18 +1,15 @@
 package sample;
 
 import com.google.gson.*;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
+import com.sun.javafx.geom.Vec2d;
+import com.sun.javafx.geom.Vec3d;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.collections.ObservableMap;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
@@ -25,29 +22,26 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.CubicCurve;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import org.opencv.core.Core;
-import org.opencv.core.CvType;
-import org.opencv.core.Mat;
-import org.opencv.core.Size;
+import org.opencv.core.*;
+import org.opencv.features2d.AgastFeatureDetector;
+import org.opencv.features2d.FastFeatureDetector;
+import org.opencv.features2d.Feature2D;
+import org.opencv.features2d.Features2d;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.imgproc.Subdiv2D;
 
 import javax.imageio.ImageIO;
-import javax.swing.*;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.awt.image.RenderedImage;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Random;
+
 
 public class Controller {
     @FXML
@@ -289,5 +283,123 @@ public class Controller {
 
             writer.close();
         }
+    }
+
+    public void addTriangularNode(ActionEvent actionEvent) {
+        NodeController node = createNodeTemplate("Triangular");
+        Slider smoothSlider = new Slider(1, 25, 1);
+        smoothSlider.setShowTickLabels(true);
+        smoothSlider.setShowTickMarks(true);
+
+        smoothSlider.valueProperty().addListener((c) -> {
+            processImage();
+        });
+
+        ObservableList<Integer> methods = FXCollections.observableArrayList(0, 1, 2, 10000, 10001, 10002);
+        ComboBox<Integer> fDetectorBox = new ComboBox<>(methods);
+        fDetectorBox.valueProperty().addListener((c) -> {
+            processImage();
+        });
+
+        node.getCenterPane().getChildren().addAll(smoothSlider, fDetectorBox);
+
+        node.setProcessFunc((Mat src) -> {
+            if (fDetectorBox.getValue() == null)
+                return;
+
+            Mat gray = new Mat(src.rows(), src.cols(), src.type());
+            Imgproc.cvtColor(src, gray, Imgproc.COLOR_RGB2GRAY);
+            gray.convertTo(gray, CvType.CV_8UC1);
+
+            int sliderValue = (int) smoothSlider.getValue();
+            sliderValue = sliderValue % 2 == 1 ? sliderValue : sliderValue + 1;
+            Imgproc.GaussianBlur(gray, gray, new Size(sliderValue, sliderValue), 0);
+
+            MatOfKeyPoint matOfKeyPoint = new MatOfKeyPoint();
+            FastFeatureDetector fd = FastFeatureDetector.create(fDetectorBox.getValue());
+            fd.detect(gray, matOfKeyPoint);
+
+            for (KeyPoint kp : matOfKeyPoint.toList()) {
+                int min = -10, max = 10;
+                int yRand = (int) (Math.random() * (max - min) + min);
+                int xRand = (int) (Math.random() * (max - min) + min);
+
+                if (kp.pt.x + xRand < gray.width() - 1 && kp.pt.x + xRand > 0)
+                    kp.pt.x += xRand;
+                if (kp.pt.y + yRand < gray.height() - 1 && kp.pt.y + yRand > 0)
+                    kp.pt.y += yRand;
+            }
+
+            Subdiv2D subdiv2D = new Subdiv2D(new Rect(0, 0, gray.width(), gray.height()));
+            for (KeyPoint kp : matOfKeyPoint.toArray()) {
+                subdiv2D.insert(kp.pt);
+            }
+            subdiv2D.insert(new Point(0, 0));
+            subdiv2D.insert(new Point(0, gray.height() - 1));
+            subdiv2D.insert(new Point(gray.width() - 1, 0));
+            subdiv2D.insert(new Point(gray.width() - 1, gray.height() - 1));
+
+
+            MatOfFloat6 trianglesMat = new MatOfFloat6();
+            subdiv2D.getTriangleList(trianglesMat);
+
+            float[] t = trianglesMat.toArray();
+            ArrayList<Triangle> triangles = new ArrayList<>();
+            for (int i = 0; i < t.length; i += 6) {
+                Point pt1 = new Point(t[i], t[i + 1]);
+                Point pt2 = new Point(t[i + 2], t[i + 3]);
+                Point pt3 = new Point(t[i + 4], t[i + 5]);
+                triangles.add(new Triangle(pt1, pt2, pt3));
+            }
+
+            for (Triangle triangle : triangles) {
+                for (MatOfPoint matPt : triangle.getPoints()) {
+                    Point pt1 = matPt.toArray()[0];
+                    Point pt2 = matPt.toArray()[1];
+                    Point pt3 = matPt.toArray()[2];
+
+                    Scalar s1 = new Scalar(processedImage.get((int) pt1.y, (int) pt1.x));
+                    Scalar s2 = new Scalar(processedImage.get((int) pt2.y, (int) pt2.x));
+                    Scalar s3 = new Scalar(processedImage.get((int) pt3.y, (int) pt3.x));
+
+                    double avg1 = (s1.val[0] + s2.val[0] + s3.val[0]) / 3.0;
+                    double avg2 = (s1.val[1] + s2.val[1] + s3.val[1]) / 3.0;
+                    double avg3 = (s1.val[2] + s2.val[2] + s3.val[2]) / 3.0;
+
+                    triangle.setColor(new Scalar(avg1, avg2, avg3));
+                }
+                Imgproc.fillPoly(processedImage, triangle.getPoints(), triangle.getColor());
+            }
+//            Features2d.drawKeypoints(processedImage, matOfKeyPoint, processedImage, new Scalar(255, 255, 255));
+        });
+
+    }
+}
+
+class Triangle {
+    private Point pt1, pt2, pt3;
+    private Scalar color;
+
+    public Triangle(Point pt1, Point pt2, Point pt3) {
+        this.pt1 = pt1;
+        this.pt2 = pt2;
+        this.pt3 = pt3;
+        color = new Scalar(255,255,255);
+    }
+
+    public ArrayList<MatOfPoint> getPoints() {
+        MatOfPoint mat = new MatOfPoint();
+        mat.fromArray(pt1, pt2, pt3);
+        ArrayList<MatOfPoint> points = new ArrayList<>();
+        points.add(mat);
+        return points;
+    }
+
+    public void setColor(Scalar color) {
+        this.color = color;
+    }
+
+    public Scalar getColor() {
+        return color;
     }
 }

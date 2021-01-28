@@ -194,3 +194,26 @@ class NodeSerializer implements JsonSerializer<NodeController> {
         return result;
     }
 }
+
+class NodeDeserializer implements JsonDeserializer<NodeController> {
+    @Override
+    public NodeController deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext context) throws JsonParseException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/DraggableNode.fxml"));
+        NodeController node = loader.getController();
+
+        JsonObject jsonObject = new JsonObject();
+        NodeType nodeType = NodeType.valueOf(jsonObject.get("type").getAsString());
+        node.type = nodeType;
+        node.getNodeInner().setTranslateX(jsonObject.get("x").getAsInt());
+        node.getNodeInner().setTranslateY(jsonObject.get("y").getAsInt());
+
+        ObservableList<NodeController> inputNodes = FXCollections.observableArrayList();
+        JsonArray inputNodesJson = new JsonArray();
+        inputNodesJson = jsonObject.getAsJsonArray("inputNodes");
+        for (JsonElement inputNodeJson : inputNodesJson) {
+            node.getInputNodes().add(context.deserialize(inputNodeJson, NodeController.class));
+        }
+
+        return node;
+    }
+}

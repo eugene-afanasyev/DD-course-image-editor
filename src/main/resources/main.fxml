@@ -30,6 +30,7 @@
                 <MenuItem text="Grayscale" onAction="#addGrayscaleNode"/>
                 <MenuItem text="Sepia node" onAction="#addSepiaNode"/>
                 <MenuItem text="Blurring node" onAction="#addBlurringNode"/>
+                <MenuItem text="Triangular node" onAction="#addTriangularNode"/>
             </Menu>
         </MenuBar>
     </ToolBar>
